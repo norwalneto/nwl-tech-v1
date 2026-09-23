@@ -1,0 +1,4 @@
+    <section class="contact wrap" id="contato" aria-labelledby="contact-title">
+      <div class="contact-intro"><p class="eyebrow">VAMOS CONVERSAR</p><h2 id="contact-title">O próximo passo<br>começa com uma<br><em>boa conexão.</em></h2><p>Conte o que sua empresa precisa.<br>A NWL ajuda você a encontrar o caminho.</p><a class="button primary" [href]="whatsappUrl('Olá, gostaria de solicitar um orçamento com a NWL.')">Falar pelo WhatsApp <span aria-hidden="true">↗</span></a></div>
+      <div class="contact-links"><a [href]="whatsappUrl()"><span><small>WHATSAPP</small><strong>{{ contact.phoneLabel }}</strong></span><span aria-hidden="true">↗</span></a><a [href]="'mailto:' + contact.email"><span><small>E-MAIL</small><strong>{{ contact.email }}</strong></span><span aria-hidden="true">↗</span></a><a [href]="contact.instagramUrl"><span><small>INSTAGRAM</small><strong>{{ contact.instagramHandle }}</strong></span><span aria-hidden="true">↗</span></a></div>
+    </section>
