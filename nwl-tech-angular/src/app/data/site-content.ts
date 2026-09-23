@@ -2,7 +2,7 @@
 export const CONTACT = {
   whatsapp: '5581973106952',
   phoneLabel: '(81) 97310-6952',
-  email: 'nwltecnologia@gmail.com',
+  email: 'www.nwltecnologia.site',
   instagramHandle: '@nwl_tech',
   instagramUrl: 'https://www.instagram.com/nwl_tech/',
 } as const;
