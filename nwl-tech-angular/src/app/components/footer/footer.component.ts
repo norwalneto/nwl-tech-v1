@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { CONTACT, whatsappUrl } from '../../data/site-content';
 
 @Component({
   selector: 'app-footer',
@@ -8,6 +7,5 @@ import { CONTACT, whatsappUrl } from '../../data/site-content';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class FooterComponent {
-  protected readonly contact = CONTACT;
-  protected readonly whatsappUrl = whatsappUrl;
+  protected readonly currentYear = new Date().getFullYear();
 }

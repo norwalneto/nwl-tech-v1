@@ -4,6 +4,13 @@
   "cli": {
     "analytics": false
   },
+  "schematics": {
+    "@schematics/angular:component": {
+      "changeDetection": "OnPush",
+      "standalone": true,
+      "style": "css"
+    }
+  },
   "newProjectRoot": "projects",
   "projects": {
     "nwl-tech": {

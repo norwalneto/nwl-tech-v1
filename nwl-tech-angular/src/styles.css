@@ -141,13 +141,16 @@ em {
   border-top:1px solid var(--line);
   border-bottom:1px solid var(--line);
   padding-block:23px;
+  padding-inline:0;
+  margin-block:0;
+  list-style:none;
   display:flex;
   justify-content:space-between;
   gap:20px;
   font-size:14px;
   letter-spacing:1px;
   color:#cad1db}
-.principles span:before {
+.principles li:before {
   content:'+';
   color:var(--green);
   margin-right:13px}

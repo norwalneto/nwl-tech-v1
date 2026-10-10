@@ -9,7 +9,7 @@ import { FooterComponent } from './components/footer/footer.component';
   selector: 'app-root',
   standalone: true,
   imports: [HeaderComponent, HeroComponent, ServicesComponent, ContactComponent, FooterComponent],
-  templateUrl: './app.component.html',
+  templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class App {}

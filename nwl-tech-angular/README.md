@@ -35,6 +35,9 @@ npm run build -- --base-href /nwl/
 
 | O que você quer alterar | Arquivo |
 | --- | --- |
+| Inicialização da aplicação | `src/main.ts` |
+| Providers e configuração global | `src/app/app.config.ts` |
+| Composição da página | `src/app/app.ts` e `src/app/app.html` |
 | WhatsApp, e-mail e Instagram | `src/app/data/site-content.ts` |
 | Menu e marca no cabeçalho | `src/app/components/header/header.component.html` |
 | Título inicial e logo flutuante | `src/app/components/hero/hero.component.html` |
@@ -44,6 +47,12 @@ npm run build -- --base-href /nwl/
 | Cores, layout, responsividade e animação da logo | `src/styles.css` |
 | Imagem original da logo | `public/assets/nwl-logo.png` |
 | Título da aba, descrição e ícone | `src/index.html` |
+
+## Estrutura standalone
+
+`src/main.ts` inicializa a aplicação com `bootstrapApplication`. `src/app/app.config.ts` concentra os providers globais, e o componente `App` importa diretamente os componentes standalone usados na página. Como o site tem uma única página com navegação por âncoras, ele não precisa de módulos Angular nem de configuração de rotas.
+
+O histórico desta organização e das alterações recentes está em [`CHANGELOG.md`](CHANGELOG.md).
 
 Os links do WhatsApp são calculados por `whatsappUrl()` e codificam as mensagens automaticamente. Eles abrem o WhatsApp; nenhuma mensagem é enviada automaticamente. Não há formulário, coleta de dados, rastreamento ou backend neste projeto.
 
