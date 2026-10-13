@@ -25,8 +25,8 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
 
   private readonly host: HTMLElement;
   private animationContext?: RevertibleAnimationContext;
-  private motionTimer = 0;
   private scrollFrame = 0;
+  private motionStarted = false;
   private destroyed = false;
 
   constructor(
@@ -42,18 +42,22 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     window.addEventListener('scroll', this.handleScroll, { passive: true });
     window.addEventListener('resize', this.handleScroll, { passive: true });
     this.handleScroll();
+  }
 
-    window.requestAnimationFrame(() => {
-      this.motionTimer = window.setTimeout(() => void this.startMotion(), 180);
-    });
+  protected onSceneReady(): void {
+    if (!isPlatformBrowser(this.platformId) || this.destroyed || this.motionStarted) return;
+
+    this.motionStarted = true;
+    void this.startMotion();
   }
 
   ngOnDestroy(): void {
     this.destroyed = true;
-    if (this.motionTimer) window.clearTimeout(this.motionTimer);
-    window.removeEventListener('scroll', this.handleScroll);
-    window.removeEventListener('resize', this.handleScroll);
-    if (this.scrollFrame) window.cancelAnimationFrame(this.scrollFrame);
+    if (isPlatformBrowser(this.platformId)) {
+      window.removeEventListener('scroll', this.handleScroll);
+      window.removeEventListener('resize', this.handleScroll);
+      if (this.scrollFrame) window.cancelAnimationFrame(this.scrollFrame);
+    }
     this.animationContext?.revert();
   }
 
@@ -85,25 +89,31 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
     const gsap = gsapModule.gsap;
 
     this.animationContext = gsap.context(() => {
-      const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
+      gsap.set('[data-hero-line]', { willChange: 'transform, opacity' });
+
+      const intro = gsap.timeline({
+        defaults: { ease: 'power3.out' },
+        onComplete: () => gsap.set('[data-hero-line]', { clearProps: 'willChange' }),
+      });
 
       intro
         .fromTo(
           '[data-hero-aura]',
           { autoAlpha: 0, scale: 0.76 },
-          { autoAlpha: 0.88, scale: 1, duration: 0.8, ease: 'power2.out' },
+          { autoAlpha: 0.88, scale: 1, duration: 1.05, ease: 'power2.out' },
+          0,
         )
         .fromTo(
           '[data-hero-particle]',
           { autoAlpha: 0, scale: 0.45, y: 10 },
-          { autoAlpha: 0.9, scale: 1, y: 0, duration: 0.58, stagger: 0.1 },
-          '-=0.42',
+          { autoAlpha: 0.9, scale: 1, y: 0, duration: 0.62, stagger: 0.09 },
+          0.14,
         )
         .fromTo(
           '[data-hero-eyebrow]',
           { autoAlpha: 0, y: 12 },
           { autoAlpha: 1, y: 0, duration: 0.52 },
-          '<+0.07',
+          0.12,
         )
         .fromTo(
           '[data-hero-line]',
@@ -112,17 +122,17 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
             autoAlpha: 1,
             yPercent: 0,
             rotationX: 0,
-            duration: 0.68,
+            duration: 0.72,
             stagger: 0.1,
             ease: 'power4.out',
           },
-          '-=0.18',
+          0.28,
         )
         .fromTo(
           '[data-hero-description]',
           { autoAlpha: 0, y: 14 },
           { autoAlpha: 1, y: 0, duration: 0.58 },
-          '-=0.23',
+          1.1,
         )
         .fromTo(
           '[data-hero-cta]',
@@ -131,17 +141,17 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
             autoAlpha: 1,
             y: 0,
             scale: 1,
-            duration: 0.6,
+            duration: 0.58,
             stagger: 0.12,
             ease: 'power3.out',
           },
-          '-=0.2',
+          1.42,
         )
         .fromTo(
           '[data-hero-note]',
           { autoAlpha: 0, y: 8 },
-          { autoAlpha: 1, y: 0, duration: 0.42 },
-          '-=0.16',
+          { autoAlpha: 1, y: 0, duration: 0.48 },
+          2.12,
         );
 
       gsap.to('[data-hero-aura]', {

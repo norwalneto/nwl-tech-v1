@@ -394,7 +394,6 @@ h1 {
 
 .hero-line > span {
   display: block;
-  will-change: transform, opacity;
 }
 
 em {
