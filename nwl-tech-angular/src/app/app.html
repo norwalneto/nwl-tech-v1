@@ -1,3 +1,5 @@
+<app-site-opening />
+
 <a class="skip" href="#conteudo">Pular para o conteúdo</a>
 
 <app-header />
@@ -5,7 +7,7 @@
 <main id="conteudo">
   <app-hero />
 
-  <ul class="principles wrap" aria-label="Áreas de atuação">
+  <ul class="principles wrap" aria-label="Áreas de atuação" data-scroll-reveal>
     <li>Segurança</li>
     <li>Conectividade</li>
     <li>Suporte</li>
@@ -13,6 +15,32 @@
   </ul>
 
   <app-services />
+
+  <section class="process wrap" aria-labelledby="process-title">
+    <div class="process-heading" data-scroll-reveal>
+      <p class="eyebrow">COMO COMEÇAR</p>
+      <h2 id="process-title">Um bom caminho começa com uma conversa clara.</h2>
+    </div>
+
+    <ol class="process-steps" data-process-stagger>
+      <li class="process-step">
+        <span class="process-index" aria-hidden="true">01</span>
+        <h3>Conte o que precisa</h3>
+        <p>Explique pelo WhatsApp o que sua empresa precisa resolver.</p>
+      </li>
+      <li class="process-step">
+        <span class="process-index" aria-hidden="true">02</span>
+        <h3>Alinhe as opções</h3>
+        <p>Converse com a NWL para entender o cenário e avaliar os próximos passos.</p>
+      </li>
+      <li class="process-step">
+        <span class="process-index" aria-hidden="true">03</span>
+        <h3>Defina como seguir</h3>
+        <p>Com a necessidade mais clara, vocês combinam como avançar.</p>
+      </li>
+    </ol>
+  </section>
+
   <app-contact />
 </main>
 

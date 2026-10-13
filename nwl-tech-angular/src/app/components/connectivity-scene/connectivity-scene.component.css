@@ -1,0 +1,302 @@
+:host {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  pointer-events: none;
+}
+
+.scene-root {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  opacity: 0;
+  transform: perspective(1200px) translateY(12px) rotateY(-8deg) scale(0.94);
+  transform-origin: 54% 50%;
+  animation: scene-enter 0.48s cubic-bezier(0.18, 0.72, 0.24, 1) both;
+  will-change: transform, opacity;
+}
+
+.scene-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 900ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:host(.scene-ready) .scene-canvas {
+  opacity: 1;
+}
+
+.scene-fallback-art {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+  transition: opacity 360ms ease;
+}
+
+:host(.scene-ready) .scene-fallback-art {
+  opacity: 0;
+}
+
+.scene-fallback-globe {
+  position: relative;
+  width: min(70%, 370px);
+  aspect-ratio: 1;
+  perspective: 900px;
+  transform-style: preserve-3d;
+  border: 1px solid rgb(105 241 213 / 48%);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 25%, rgb(107 246 197 / 16%), transparent 33%),
+    radial-gradient(circle at 50% 54%, rgb(12 61 70 / 77%), rgb(4 19 27 / 22%) 69%, transparent 72%);
+  box-shadow:
+    inset 0 0 42px rgb(27 212 199 / 15%),
+    0 0 38px rgb(23 190 180 / 13%);
+  animation: fallback-globe-turn 22s linear infinite;
+}
+
+.scene-fallback-globe::before,
+.scene-fallback-globe::after {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgb(104 231 208 / 45%);
+  border-radius: 50%;
+  content: '';
+}
+
+.scene-fallback-globe::before {
+  transform: scaleX(0.42) rotate(25deg);
+  box-shadow: 0 0 18px rgb(84 226 203 / 12%);
+}
+
+.scene-fallback-globe::after {
+  inset: 17% -7%;
+  transform: rotate(-31deg);
+}
+
+.fallback-surface-flow {
+  position: absolute;
+  inset: 7% -5%;
+  border: 1px solid rgb(143 255 220 / 75%);
+  border-radius: 50%;
+  box-shadow: 0 0 9px rgb(66 235 213 / 40%);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.fallback-surface-flow-one {
+  animation: fallback-surface-flow 18s linear infinite;
+}
+
+.fallback-surface-flow-two {
+  inset: 15% -10%;
+  border-color: rgb(93 220 244 / 62%);
+  box-shadow: 0 0 8px rgb(64 197 234 / 32%);
+  animation: fallback-surface-flow-reverse 23s linear infinite;
+}
+
+.fallback-orbit {
+  position: absolute;
+  inset: -8%;
+  border: 1px solid rgb(104 231 208 / 35%);
+  border-radius: 50%;
+}
+
+.fallback-orbit-one {
+  transform: rotate(53deg) scaleX(0.5);
+}
+
+.fallback-orbit-two {
+  inset: 8% -14%;
+  transform: rotate(-23deg);
+  border-color: rgb(81 209 226 / 27%);
+}
+
+.fallback-orbit-light {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  animation: fallback-orbit-travel var(--orbit-speed) linear infinite;
+  transform-origin: center;
+}
+
+.fallback-orbit-light::before,
+.fallback-orbit-light::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  content: '';
+}
+
+.fallback-orbit-light::before {
+  width: 22px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) translateX(var(--orbit-radius));
+  background: var(--orbit-color);
+  filter: blur(8px);
+  opacity: 0.5;
+}
+
+.fallback-orbit-light::after {
+  width: 7px;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) translateX(var(--orbit-radius));
+  background: #e0fff3;
+  box-shadow: 0 0 12px 4px var(--orbit-color);
+}
+
+.fallback-orbit-light-one {
+  --orbit-radius: 62%;
+  --orbit-color: #51ffe0;
+  --orbit-speed: 21s;
+  --orbit-angle: 0deg;
+  animation-delay: -5s;
+}
+
+.fallback-orbit-light-two {
+  --orbit-radius: 70%;
+  --orbit-color: #9af7cb;
+  --orbit-speed: 29s;
+  --orbit-angle: 75deg;
+  animation-delay: -13s;
+}
+
+.fallback-orbit-light-three {
+  --orbit-radius: 77%;
+  --orbit-color: #40d8ed;
+  --orbit-speed: 37s;
+  --orbit-angle: 190deg;
+  animation-delay: -21s;
+}
+
+.fallback-node {
+  position: absolute;
+  width: 9px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #a1ffd1;
+  box-shadow: 0 0 16px 4px rgb(105 255 206 / 45%);
+}
+
+.fallback-node-one { top: 13%; left: 25%; }
+.fallback-node-two { top: 64%; right: 8%; background: #76eaff; }
+.fallback-node-three { bottom: 7%; left: 45%; width: 7px; }
+
+.scene-fallback-logo {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  width: min(50%, 185px);
+  height: auto;
+  transform: translate(-50%, -50%) translateZ(min(29vw, 148px));
+  filter: drop-shadow(0 0 12px rgb(123 255 218 / 22%));
+  backface-visibility: hidden;
+}
+
+.scene-loading-indicator {
+  position: absolute;
+  z-index: 4;
+  bottom: max(14px, 4%);
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  transform: translateX(-50%);
+  border: 1px solid rgb(177 193 217 / 17%);
+  border-radius: 999px;
+  background: rgb(8 10 20 / 58%);
+  color: rgb(226 238 241 / 72%);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  transition: opacity 260ms ease, visibility 260ms ease;
+}
+
+.scene-loading-spinner {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+  border: 1px solid rgb(160 239 88 / 25%);
+  border-top-color: #c4ff83;
+  border-radius: 50%;
+  animation: scene-loading-spin 0.9s linear infinite;
+}
+
+:host(.scene-ready) .scene-loading-indicator,
+:host(.scene-fallback) .scene-loading-indicator,
+:host(.scene-logo-unavailable) .scene-loading-indicator {
+  opacity: 0;
+  visibility: hidden;
+}
+
+:host(.scene-logo-unavailable) .scene-fallback-art {
+  opacity: 1;
+}
+
+@keyframes scene-loading-spin {
+  to { transform: rotate(1turn); }
+}
+
+@keyframes scene-enter {
+  to {
+    opacity: 1;
+    transform: perspective(1200px) translateY(0) rotateY(0) scale(1);
+  }
+}
+
+@keyframes fallback-globe-turn {
+  from { transform: rotateY(-12deg) rotateX(7deg); }
+  to { transform: rotateY(348deg) rotateX(7deg); }
+}
+
+@keyframes fallback-orbit-travel {
+  from { transform: rotate(var(--orbit-angle)); }
+  to { transform: rotate(calc(var(--orbit-angle) + 1turn)); }
+}
+
+@keyframes fallback-surface-flow {
+  0% { transform: rotateY(0deg) rotateZ(24deg) scaleX(0.86); }
+  25% { transform: rotateY(90deg) rotateZ(24deg) scaleX(0.26); }
+  50% { transform: rotateY(180deg) rotateZ(24deg) scaleX(0.86); }
+  75% { transform: rotateY(270deg) rotateZ(24deg) scaleX(0.26); }
+  100% { transform: rotateY(360deg) rotateZ(24deg) scaleX(0.86); }
+}
+
+@keyframes fallback-surface-flow-reverse {
+  0% { transform: rotateY(0deg) rotateZ(-34deg) scaleX(0.78); }
+  25% { transform: rotateY(-90deg) rotateZ(-34deg) scaleX(0.24); }
+  50% { transform: rotateY(-180deg) rotateZ(-34deg) scaleX(0.78); }
+  75% { transform: rotateY(-270deg) rotateZ(-34deg) scaleX(0.24); }
+  100% { transform: rotateY(-360deg) rotateZ(-34deg) scaleX(0.78); }
+}
+
+@media (max-width: 760px) {
+  .scene-fallback-globe {
+    width: min(76%, 340px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-root,
+  .scene-loading-spinner { animation-duration: 0.01ms; }
+
+  .scene-fallback-globe { animation-duration: 138s; }
+  .fallback-surface-flow-one { animation-duration: 112s; }
+  .fallback-surface-flow-two { animation-duration: 144s; }
+  .fallback-orbit-light-one { animation-duration: 131s; }
+  .fallback-orbit-light-two { animation-duration: 181s; }
+  .fallback-orbit-light-three { animation-duration: 231s; }
+}
+
+
