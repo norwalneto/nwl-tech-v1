@@ -38,6 +38,8 @@ export class App implements AfterViewInit, OnDestroy {
   private gsapRuntime?: typeof import('gsap').gsap;
   private scrollTriggerRuntime?: typeof import('gsap/ScrollTrigger').ScrollTrigger;
   private stopLenisListening?: () => void;
+  private revealObserver?: IntersectionObserver;
+  private readonly revealTargets: HTMLElement[] = [];
   private motionTimer = 0;
   private destroyed = false;
 
@@ -52,8 +54,7 @@ export class App implements AfterViewInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
 
     window.requestAnimationFrame(() => window.dispatchEvent(new Event('nwl-app-ready')));
-
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    this.initializeScrollReveals();
 
     this.motionTimer = window.setTimeout(() => void this.startMotion(), 180);
   }
@@ -61,7 +62,50 @@ export class App implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroyed = true;
     if (this.motionTimer) window.clearTimeout(this.motionTimer);
+    this.revealObserver?.disconnect();
+    this.revealTargets.forEach((element) => {
+      element.classList.remove('scroll-reveal', 'scroll-reveal--visible');
+      element.style.removeProperty('--scroll-reveal-delay');
+    });
+    this.revealTargets.length = 0;
     this.clearMotion();
+  }
+
+  private initializeScrollReveals(): void {
+    const groups = [
+      { selector: '[data-scroll-reveal]', stagger: 0 },
+      { selector: '[data-card-stagger] .service', stagger: 80 },
+      { selector: '[data-process-stagger] .process-step', stagger: 90 },
+      { selector: '[data-contact-stagger] [data-contact-link]', stagger: 100 },
+    ];
+
+    groups.forEach(({ selector, stagger }) => {
+      this.host.querySelectorAll<HTMLElement>(selector).forEach((element, index) => {
+        element.classList.add('scroll-reveal');
+        element.style.setProperty('--scroll-reveal-delay', `${index * stagger}ms`);
+        this.revealTargets.push(element);
+      });
+    });
+
+    if (typeof IntersectionObserver === 'undefined') {
+      this.revealTargets.forEach((element) => element.classList.add('scroll-reveal--visible'));
+      return;
+    }
+
+    this.revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          const element = entry.target as HTMLElement;
+          element.classList.add('scroll-reveal--visible');
+          this.revealObserver?.unobserve(element);
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    );
+
+    this.revealTargets.forEach((element) => this.revealObserver?.observe(element));
   }
 
   private async startMotion(): Promise<void> {
@@ -74,7 +118,8 @@ export class App implements AfterViewInit, OnDestroy {
         import('gsap/ScrollTrigger'),
         import('lenis'),
       ]);
-    } catch {
+    } catch (error) {
+      console.error('Não foi possível carregar as animações de rolagem:', error);
       return;
     }
 
@@ -98,95 +143,6 @@ export class App implements AfterViewInit, OnDestroy {
     gsap.ticker.lagSmoothing(0);
 
     this.animationContext = gsap.context(() => {
-      const revealTargets = this.host.querySelectorAll<HTMLElement>('[data-scroll-reveal]');
-      revealTargets.forEach((element) => {
-        gsap.fromTo(
-          element,
-          { autoAlpha: 0, y: 44, rotationX: 4 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            rotationX: 0,
-            duration: 1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: element,
-              start: 'top 90%',
-              end: 'top 56%',
-              scrub: 0.9,
-            },
-          },
-        );
-      });
-
-      const cardGrid = this.host.querySelector<HTMLElement>('[data-card-stagger]');
-      const cards = cardGrid?.querySelectorAll<HTMLElement>('.service');
-      if (cardGrid && cards?.length) {
-        gsap.fromTo(
-          cards,
-          { autoAlpha: 0, y: 58, rotationX: 8, scale: 0.96 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            rotationX: 0,
-            scale: 1,
-            duration: 1,
-            stagger: 0.14,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: cardGrid,
-              start: 'top 90%',
-              end: 'top 54%',
-              scrub: 1,
-            },
-          },
-        );
-      }
-
-      const processList = this.host.querySelector<HTMLElement>('[data-process-stagger]');
-      const processSteps = processList?.querySelectorAll<HTMLElement>('.process-step');
-      if (processList && processSteps?.length) {
-        gsap.fromTo(
-          processSteps,
-          { autoAlpha: 0, y: 34 },
-          {
-            autoAlpha: 1,
-            y: 0,
-            duration: 1,
-            stagger: 0.1,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: processList,
-              start: 'top 90%',
-              end: 'top 56%',
-              scrub: 0.9,
-            },
-          },
-        );
-      }
-
-      const contactList = this.host.querySelector<HTMLElement>('[data-contact-stagger]');
-      const contactRows = contactList?.querySelectorAll<HTMLElement>('[data-contact-link]');
-      if (contactList && contactRows?.length) {
-        gsap.fromTo(
-          contactRows,
-          { autoAlpha: 0, x: 42 },
-          {
-            autoAlpha: 1,
-            x: 0,
-            duration: 1,
-            stagger: 0.18,
-            ease: 'none',
-            scrollTrigger: {
-              trigger: contactList,
-              start: 'top 88%',
-              end: 'top 54%',
-              scrub: 0.95,
-            },
-          },
-        );
-      }
-
       const navLinks = this.host.querySelectorAll<HTMLAnchorElement>(
         '.header nav a[href^="#"]',
       );

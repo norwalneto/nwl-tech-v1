@@ -206,7 +206,7 @@
   z-index: 4;
   bottom: max(14px, 4%);
   left: 50%;
-  display: inline-flex;
+  display: var(--scene-loading-display, inline-flex);
   align-items: center;
   gap: 9px;
   padding: 8px 12px;

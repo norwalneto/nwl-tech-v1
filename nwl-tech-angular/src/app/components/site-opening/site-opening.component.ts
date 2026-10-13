@@ -3,17 +3,17 @@ import {
   AfterViewInit,
   ChangeDetectionStrategy,
   Component,
-  ElementRef,
   Inject,
   OnDestroy,
   PLATFORM_ID,
   signal,
-  ViewChild,
 } from '@angular/core';
+import { ConnectivitySceneComponent } from '../connectivity-scene/connectivity-scene.component';
 
 @Component({
   selector: 'app-site-opening',
   standalone: true,
+  imports: [ConnectivitySceneComponent],
   templateUrl: './site-opening.component.html',
   styleUrl: './site-opening.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,11 +21,14 @@ import {
 export class SiteOpeningComponent implements AfterViewInit, OnDestroy {
   protected readonly visible = signal(true);
   protected readonly leaving = signal(false);
-  protected readonly logoReady = signal(false);
-  @ViewChild('brandLogo') private brandLogo?: ElementRef<HTMLImageElement>;
+  protected readonly animationReady = signal(false);
+  protected readonly progress = signal(0);
+  private readonly minimumDuration = 4200;
   private minimumTimer = 0;
   private maximumTimer = 0;
   private removeTimer = 0;
+  private progressTimer = 0;
+  private progressStartedAt = 0;
   private minimumElapsed = false;
   private appReady = false;
   private sceneReady = false;
@@ -36,14 +39,15 @@ export class SiteOpeningComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (this.brandLogo?.nativeElement.complete) this.onLogoReady();
-
     window.addEventListener('nwl-app-ready', this.handleAppReady);
-    window.addEventListener('nwl-scene-ready', this.handleSceneReady);
+    this.progressStartedAt = performance.now();
+    this.advanceProgress();
+    this.progressTimer = window.setInterval(this.advanceProgress, 80);
     this.minimumTimer = window.setTimeout(() => {
       this.minimumElapsed = true;
+      this.advanceProgress();
       this.tryClose();
-    }, 4200);
+    }, this.minimumDuration);
     this.maximumTimer = window.setTimeout(() => this.close(), 9000);
   }
 
@@ -51,32 +55,35 @@ export class SiteOpeningComponent implements AfterViewInit, OnDestroy {
     if (!isPlatformBrowser(this.platformId)) return;
 
     window.removeEventListener('nwl-app-ready', this.handleAppReady);
-    window.removeEventListener('nwl-scene-ready', this.handleSceneReady);
     window.clearTimeout(this.minimumTimer);
     window.clearTimeout(this.maximumTimer);
     window.clearTimeout(this.removeTimer);
+    window.clearInterval(this.progressTimer);
   }
 
-  protected onLogoReady(): void {
-    const image = this.brandLogo?.nativeElement;
-    if (!image) {
-      this.logoReady.set(true);
-      return;
-    }
-
-    void image.decode()
-      .catch(() => undefined)
-      .finally(() => this.logoReady.set(true));
+  protected onSceneReady(): void {
+    this.sceneReady = true;
+    this.animationReady.set(true);
+    this.advanceProgress();
+    this.tryClose();
   }
 
   private readonly handleAppReady = (): void => {
     this.appReady = true;
+    this.advanceProgress();
     this.tryClose();
   };
 
-  private readonly handleSceneReady = (): void => {
-    this.sceneReady = true;
-    this.tryClose();
+  private readonly advanceProgress = (): void => {
+    if (this.closed || !this.progressStartedAt) return;
+
+    const elapsed = Math.min(
+      (performance.now() - this.progressStartedAt) / this.minimumDuration,
+      1,
+    );
+    const milestones = (this.appReady ? 10 : 0) + (this.sceneReady ? 16 : 0);
+    const nextProgress = Math.min(96, Math.round(elapsed * 70 + milestones));
+    this.progress.update((current) => Math.max(current, nextProgress));
   };
 
   private tryClose(): void {
@@ -86,6 +93,9 @@ export class SiteOpeningComponent implements AfterViewInit, OnDestroy {
   private close(): void {
     if (this.closed) return;
     this.closed = true;
+    this.progress.set(100);
+    window.clearInterval(this.progressTimer);
+    this.progressTimer = 0;
     this.leaving.set(true);
     this.removeTimer = window.setTimeout(() => this.visible.set(false), 960);
   }

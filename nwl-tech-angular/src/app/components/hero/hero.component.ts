@@ -26,6 +26,7 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   private readonly host: HTMLElement;
   private animationContext?: RevertibleAnimationContext;
   private motionTimer = 0;
+  private scrollFrame = 0;
   private destroyed = false;
 
   constructor(
@@ -38,7 +39,9 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
+    window.addEventListener('resize', this.handleScroll, { passive: true });
+    this.handleScroll();
 
     window.requestAnimationFrame(() => {
       this.motionTimer = window.setTimeout(() => void this.startMotion(), 180);
@@ -48,26 +51,38 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroyed = true;
     if (this.motionTimer) window.clearTimeout(this.motionTimer);
+    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('resize', this.handleScroll);
+    if (this.scrollFrame) window.cancelAnimationFrame(this.scrollFrame);
     this.animationContext?.revert();
   }
 
+  private readonly handleScroll = (): void => {
+    if (this.scrollFrame) return;
+
+    this.scrollFrame = window.requestAnimationFrame(() => {
+      this.scrollFrame = 0;
+      const bounds = this.host.getBoundingClientRect();
+      const progress = Math.min(1, Math.max(0, -bounds.top / Math.max(bounds.height, 1)));
+
+      this.host.style.setProperty('--hero-scroll-logo-y', `${-progress * 42}px`);
+      this.host.style.setProperty('--hero-scroll-copy-y', `${-progress * 18}px`);
+      this.host.style.setProperty('--hero-scroll-aura-y', `${-progress * 34}px`);
+    });
+  };
+
   private async startMotion(): Promise<void> {
     let gsapModule: typeof import('gsap');
-    let scrollTriggerModule: typeof import('gsap/ScrollTrigger');
     try {
-      [gsapModule, scrollTriggerModule] = await Promise.all([
-        import('gsap'),
-        import('gsap/ScrollTrigger'),
-      ]);
-    } catch {
+      gsapModule = await import('gsap');
+    } catch (error) {
+      console.error('Não foi possível carregar as animações do hero:', error);
       return;
     }
 
     if (this.destroyed) return;
 
     const gsap = gsapModule.gsap;
-    const ScrollTrigger = scrollTriggerModule.ScrollTrigger;
-    gsap.registerPlugin(ScrollTrigger);
 
     this.animationContext = gsap.context(() => {
       const intro = gsap.timeline({ defaults: { ease: 'power3.out' } });
@@ -150,16 +165,6 @@ export class HeroComponent implements AfterViewInit, OnDestroy {
         ease: 'sine.inOut',
       });
 
-      gsap.to('[data-hero-aura]', {
-        yPercent: -22,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '.hero',
-          start: 'top top',
-          end: 'bottom top',
-          scrub: 1.2,
-        },
-      });
     }, this.host);
   }
 }

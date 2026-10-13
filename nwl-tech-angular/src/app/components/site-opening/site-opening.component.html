@@ -7,32 +7,23 @@
     aria-label="Carregando o site da NWL"
   >
     <div class="site-loader__content">
-      <div class="site-loader__brand" [class.site-loader__brand--ready]="logoReady()">
+      <div class="site-loader__brand" [class.site-loader__brand--ready]="animationReady()">
         <div class="site-loader__globe" aria-hidden="true">
-          <span class="site-loader__sphere">
-            <span class="site-loader__surface-flow"></span>
-            <span class="site-loader__surface-flow site-loader__surface-flow--secondary"></span>
-          </span>
-          <span class="site-loader__orbit"></span>
-          <span class="site-loader__orbit site-loader__orbit--secondary"></span>
-          <span class="site-loader__light site-loader__light--one"></span>
-          <span class="site-loader__light site-loader__light--two"></span>
-          <span class="site-loader__light site-loader__light--three"></span>
-          <img
-            #brandLogo
-            src="assets/nwl-logo-cutout.webp"
-            alt=""
-            fetchpriority="high"
-            decoding="async"
-            (load)="onLogoReady()"
-            (error)="onLogoReady()"
-          >
+          <app-connectivity-scene (ready)="onSceneReady()" aria-hidden="true" />
         </div>
         <p class="site-loader__eyebrow">NWL · SOLUÇÕES TECNOLÓGICAS</p>
         <p class="site-loader__title">Conectando sua empresa.</p>
       </div>
-      <span class="site-loader__track" aria-hidden="true"></span>
-      <span class="site-loader__caption" aria-hidden="true">PREPARANDO GLOBO E EXPERIÊNCIA</span>
+      <div
+        class="site-loader__track"
+        role="progressbar"
+        aria-label="Carregamento do site"
+        aria-valuemin="0"
+        aria-valuemax="100"
+        [attr.aria-valuenow]="progress()"
+      >
+        <span class="site-loader__track-fill" [style.width.%]="progress()"></span>
+      </div>
     </div>
   </div>
 }

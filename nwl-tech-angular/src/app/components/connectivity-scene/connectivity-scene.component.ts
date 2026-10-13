@@ -4,8 +4,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  EventEmitter,
   Inject,
   OnDestroy,
+  Output,
   PLATFORM_ID,
 } from '@angular/core';
 
@@ -32,6 +34,8 @@ type OrbitPulse = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConnectivitySceneComponent implements AfterViewInit, OnDestroy {
+  @Output() readonly ready = new EventEmitter<void>();
+
   private renderer?: ThreeRenderer;
   private scene?: ThreeScene;
   private camera?: import('three').PerspectiveCamera;
@@ -73,7 +77,9 @@ export class ConnectivitySceneComponent implements AfterViewInit, OnDestroy {
     this.motionPreference?.removeEventListener('change', this.handleMotionPreferenceChange);
     this.resizeObserver?.disconnect();
     this.visibilityObserver?.disconnect();
-    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    if (isPlatformBrowser(this.platformId)) {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
     this.disposeSceneResources();
     this.renderer?.dispose();
     this.renderer = undefined;
@@ -220,6 +226,7 @@ export class ConnectivitySceneComponent implements AfterViewInit, OnDestroy {
     if (this.sceneReady) return;
 
     this.sceneReady = true;
+    this.ready.emit();
     window.dispatchEvent(new Event('nwl-scene-ready'));
   }
 
