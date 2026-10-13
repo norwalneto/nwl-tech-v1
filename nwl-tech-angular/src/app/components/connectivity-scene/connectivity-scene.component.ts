@@ -14,6 +14,9 @@ type ThreeScene = import('three').Scene;
 type ThreeGroup = import('three').Group;
 type ThreeMesh = import('three').Mesh;
 type ThreeRenderer = import('three').WebGLRenderer;
+type ThreeGeometry = import('three').BufferGeometry;
+type ThreeMaterial = import('three').Material;
+type ThreeTexture = import('three').Texture;
 type OrbitPulse = {
   path: ThreeGroup;
   halo: ThreeMesh;
@@ -71,8 +74,54 @@ export class ConnectivitySceneComponent implements AfterViewInit, OnDestroy {
     this.resizeObserver?.disconnect();
     this.visibilityObserver?.disconnect();
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    this.disposeSceneResources();
     this.renderer?.dispose();
     this.renderer = undefined;
+  }
+
+  private disposeSceneResources(): void {
+    const geometries = new Set<ThreeGeometry>();
+    const materials = new Set<ThreeMaterial>();
+    const textures = new Set<ThreeTexture>();
+
+    this.scene?.traverse((object) => {
+      const renderable = object as {
+        geometry?: ThreeGeometry;
+        material?: ThreeMaterial | ThreeMaterial[];
+      };
+      if (renderable.geometry) geometries.add(renderable.geometry);
+
+      const objectMaterials = renderable.material
+        ? Array.isArray(renderable.material)
+          ? renderable.material
+          : [renderable.material]
+        : [];
+
+      for (const material of objectMaterials) {
+        materials.add(material);
+        for (const value of Object.values(material)) {
+          if (
+            value &&
+            typeof value === 'object' &&
+            'isTexture' in value &&
+            value.isTexture === true
+          ) {
+            textures.add(value as ThreeTexture);
+          }
+        }
+      }
+    });
+
+    textures.forEach((texture) => texture.dispose());
+    materials.forEach((material) => material.dispose());
+    geometries.forEach((geometry) => geometry.dispose());
+
+    this.scene = undefined;
+    this.world = undefined;
+    this.globe = undefined;
+    this.surfaceFlow = undefined;
+    this.brandMaterial = undefined;
+    this.orbitPulses.length = 0;
   }
 
   private readonly handleVisibilityChange = (): void => {
@@ -160,6 +209,7 @@ export class ConnectivitySceneComponent implements AfterViewInit, OnDestroy {
       this.startAnimation();
     } catch {
       this.markSceneReady('scene-fallback');
+      this.disposeSceneResources();
       this.renderer?.dispose();
       this.renderer = undefined;
     }

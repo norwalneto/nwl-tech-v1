@@ -9,11 +9,51 @@
 
 # Node modules and dependency files
 /node_modules/
-/package-lock.json
-/yarn.lock
 
 # Environment files
 /.env
+/.env.*
+!.env.example
+!.env.*.example
+/.npmrc
+
+# Vercel project metadata
+/.vercel/
+
+# Browser profiles and private browsing data
+.chrome*/
+.chromium*/
+.edge*/
+.firefox*/
+chrome-profile*/
+chrome-user-data/
+browser-profile*/
+.browser-profiles/
+playwright/.auth/
+**/Cookies*
+**/History*
+**/Login Data*
+**/Web Data*
+**/Local State
+**/sessionstore*
+**/places.sqlite*
+
+# Credentials and private keys
+credentials.*
+secrets.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+
+# Temporary files and logs
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.log
 
 # Angular CLI and build artefacts
 /.angular-cli.json
